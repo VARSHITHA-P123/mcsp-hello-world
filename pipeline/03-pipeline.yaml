@@ -11,9 +11,6 @@ spec:
     - name: GIT_REVISION
       type: string
       default: main
-    - name: IMAGE
-      type: string
-      default: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest
   workspaces:
     - name: shared-workspace
   tasks:
@@ -38,4 +35,4 @@ spec:
           workspace: shared-workspace
       params:
         - name: IMAGE
-          value: $(params.IMAGE)
+          value: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest

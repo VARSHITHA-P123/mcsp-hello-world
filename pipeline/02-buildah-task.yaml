@@ -17,23 +17,35 @@ spec:
     - name: source
   steps:
     - name: build-and-push
-      image: registry.redhat.io/rhel8/buildah:latest
+      image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
       securityContext:
-        privileged: true
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
       script: |
-        buildah bud \
-          --tls-verify=false \
-          --file=$(params.DOCKERFILE) \
-          --tag=$(params.IMAGE) \
-          $(params.CONTEXT)
+        #!/bin/sh
+        set -e
 
-        buildah push \
-          --tls-verify=false \
-          $(params.IMAGE) \
-          docker://$(params.IMAGE)
-      volumeMounts:
-        - name: varlibcontainers
-          mountPath: /var/lib/containers
-  volumes:
-    - name: varlibcontainers
-      emptyDir: {}
+        echo "Creating ImageStream if not exists..."
+        oc create imagestream mcsp-hello-world -n learning-workspace --dry-run=client -o yaml | oc apply -f -
+
+        echo "Creating BuildConfig..."
+        oc new-build \
+          --name=mcsp-hello-world \
+          --binary=true \
+          --strategy=docker \
+          --dockerfile-path=Dockerfile \
+          --to=mcsp-hello-world:latest \
+          -n learning-workspace \
+          --dry-run=client -o yaml | oc apply -f -
+
+        echo "Starting build from source..."
+        oc start-build mcsp-hello-world \
+          --from-dir=$(workspaces.source.path)/app \
+          --follow \
+          --wait \
+          -n learning-workspace
