@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: mcsp-build-run-
+  namespace: learning-workspace
+spec:
+  pipelineRef:
+    name: mcsp-build-pipeline
+  serviceAccountName: pipeline
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: mcsp-pipeline-pvc

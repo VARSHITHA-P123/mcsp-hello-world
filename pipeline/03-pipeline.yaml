@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mcsp-build-pipeline
+  namespace: learning-workspace
+spec:
+  params:
+    - name: GIT_URL
+      type: string
+      default: https://github.com/VARSHITHA-P123/mcsp-hello-world.git
+    - name: GIT_REVISION
+      type: string
+      default: main
+    - name: IMAGE
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+        - name: revision
+          value: $(params.GIT_REVISION)
+    - name: build-and-push
+      taskRef:
+        name: buildah-build-push
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE)
