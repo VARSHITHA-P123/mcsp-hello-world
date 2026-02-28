@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mcsp-hello-world
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/VARSHITHA-P123/mcsp-hello-world.git
+    targetRevision: main
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: learning-workspace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
