@@ -4,10 +4,6 @@ metadata:
   name: buildah-build-push
   namespace: learning-workspace
 spec:
-  params:
-    - name: IMAGE
-      type: string
-      default: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest
   workspaces:
     - name: source
   steps:
@@ -25,9 +21,11 @@ spec:
         #!/bin/sh
         set -e
 
-        echo "=== Starting OpenShift build ==="
-        echo "Source directory contents:"
-        ls $(workspaces.source.path)/app/
+        echo "=== Workspace contents ==="
+        ls $(workspaces.source.path)
+
+        echo "=== App directory ==="
+        ls $(workspaces.source.path)/app
 
         echo "=== Triggering BuildConfig ==="
         oc start-build mcsp-hello-world \
@@ -36,5 +34,5 @@ spec:
           --wait \
           -n learning-workspace
 
-        echo "=== Build completed successfully ==="
+        echo "=== Build complete ==="
         oc get istag mcsp-hello-world:latest -n learning-workspace

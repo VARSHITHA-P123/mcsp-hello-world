@@ -11,11 +11,23 @@ spec:
       type: string
       default: main
   workspaces:
-    - name: output
+    - name: source
   steps:
     - name: clone
-      image: alpine/git:latest
+      image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
       script: |
-        git clone $(params.url) $(workspaces.output.path)
-        cd $(workspaces.output.path)
+        #!/bin/sh
+        set -e
+        cd $(workspaces.source.path)
+        git clone $(params.url) .
         git checkout $(params.revision)
+        echo "=== Cloned contents ==="
+        ls $(workspaces.source.path)
