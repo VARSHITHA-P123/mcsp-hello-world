@@ -1,11 +1,2 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mcsp-pipeline-pvc
-  namespace: learning-workspace
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
+# No PVC needed - using emptyDir workspace instead
+# This file is kept for reference only

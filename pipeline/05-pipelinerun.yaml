@@ -9,5 +9,4 @@ spec:
   serviceAccountName: pipeline
   workspaces:
     - name: shared-workspace
-      persistentVolumeClaim:
-        claimName: mcsp-pipeline-pvc
+      emptyDir: {}
