@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: mcsp-hello-world
+  namespace: learning-workspace
+  labels:
+    app: mcsp-hello-world
+spec:
+  to:
+    kind: Service
+    name: mcsp-hello-world
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
