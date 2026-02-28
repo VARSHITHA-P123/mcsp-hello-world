@@ -7,12 +7,7 @@ spec:
   params:
     - name: IMAGE
       type: string
-    - name: DOCKERFILE
-      type: string
-      default: ./app/Dockerfile
-    - name: CONTEXT
-      type: string
-      default: ./app
+      default: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest
   workspaces:
     - name: source
   steps:
@@ -30,22 +25,16 @@ spec:
         #!/bin/sh
         set -e
 
-        echo "Creating ImageStream if not exists..."
-        oc create imagestream mcsp-hello-world -n learning-workspace --dry-run=client -o yaml | oc apply -f -
+        echo "=== Starting OpenShift build ==="
+        echo "Source directory contents:"
+        ls $(workspaces.source.path)/app/
 
-        echo "Creating BuildConfig..."
-        oc new-build \
-          --name=mcsp-hello-world \
-          --binary=true \
-          --strategy=docker \
-          --dockerfile-path=Dockerfile \
-          --to=mcsp-hello-world:latest \
-          -n learning-workspace \
-          --dry-run=client -o yaml | oc apply -f -
-
-        echo "Starting build from source..."
+        echo "=== Triggering BuildConfig ==="
         oc start-build mcsp-hello-world \
           --from-dir=$(workspaces.source.path)/app \
           --follow \
           --wait \
           -n learning-workspace
+
+        echo "=== Build completed successfully ==="
+        oc get istag mcsp-hello-world:latest -n learning-workspace

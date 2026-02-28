@@ -33,6 +33,3 @@ spec:
       workspaces:
         - name: source
           workspace: shared-workspace
-      params:
-        - name: IMAGE
-          value: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest
