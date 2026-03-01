@@ -1,0 +1,15 @@
+# This file represents a customer onboarding request
+# Pushing this file to GitHub triggers automatic deployment
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: customer-a-config
+  namespace: learning-workspace
+  labels:
+    tenant: customer-a
+    customer: "true"
+data:
+  customerName: "customer-a"
+  customerTier: "standard"
+  replicas: "2"
+  domain: "customer-a.apps.zps-mcsp1.cp.fyre.ibm.com"
