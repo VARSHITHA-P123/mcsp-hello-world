@@ -1,0 +1,12 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: mcsp-hello-world-placement
+  namespace: learning-workspace
+spec:
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            local-cluster: "true"
+  numberOfClusters: 1
