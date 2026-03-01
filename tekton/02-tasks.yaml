@@ -1,0 +1,54 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: openshift-build
+  namespace: learning-workspace
+spec:
+  steps:
+    - name: start-build
+      image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      script: |
+        #!/bin/sh
+        set -e
+        echo "=== Triggering OpenShift Build ==="
+        oc start-build mcsp-hello-world \
+          --follow \
+          --wait \
+          -n learning-workspace
+        echo "=== Build completed ==="
+        oc get builds -n learning-workspace | tail -1
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: argocd-sync-check
+  namespace: learning-workspace
+spec:
+  steps:
+    - name: check-sync
+      image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      script: |
+        #!/bin/sh
+        set -e
+        echo "=== Waiting for ArgoCD to sync ==="
+        sleep 10
+        oc get application.argoproj.io mcsp-hello-world \
+          -n openshift-gitops \
+          -o jsonpath='{.status.sync.status}{"\n"}{.status.health.status}{"\n"}'
+        echo "=== Done ==="

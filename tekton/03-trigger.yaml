@@ -1,0 +1,46 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: mcsp-github-binding
+  namespace: learning-workspace
+spec:
+  params:
+    - name: git-revision
+      value: $(body.head_commit.id)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: mcsp-trigger-template
+  namespace: learning-workspace
+spec:
+  params:
+    - name: git-revision
+      default: main
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: mcsp-build-run-
+        namespace: learning-workspace
+      spec:
+        pipelineRef:
+          name: mcsp-build-pipeline
+        serviceAccountName: pipeline
+        params:
+          - name: GIT_REVISION
+            value: $(tt.params.git-revision)
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: mcsp-event-listener
+  namespace: learning-workspace
+spec:
+  serviceAccountName: pipeline
+  triggers:
+    - name: github-push
+      bindings:
+        - ref: mcsp-github-binding
+      template:
+        ref: mcsp-trigger-template

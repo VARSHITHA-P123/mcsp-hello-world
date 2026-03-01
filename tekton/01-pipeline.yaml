@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mcsp-build-pipeline
+  namespace: learning-workspace
+spec:
+  params:
+    - name: GIT_REVISION
+      type: string
+      default: main
+  tasks:
+    - name: build-image
+      taskRef:
+        name: openshift-build
+    - name: sync-argocd
+      runAfter:
+        - build-image
+      taskRef:
+        name: argocd-sync-check
