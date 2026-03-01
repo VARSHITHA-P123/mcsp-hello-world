@@ -8,10 +8,33 @@ spec:
     - name: GIT_REVISION
       type: string
       default: main
+  workspaces:
+    - name: shared-workspace
   tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: https://github.com/VARSHITHA-P123/mcsp-hello-world.git
+        - name: revision
+          value: $(params.GIT_REVISION)
+    - name: run-tests
+      taskRef:
+        name: test-app
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: shared-workspace
     - name: build-image
       taskRef:
         name: openshift-build
+      runAfter:
+        - run-tests
     - name: sync-argocd
       runAfter:
         - build-image

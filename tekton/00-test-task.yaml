@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: test-app
+  namespace: learning-workspace
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: run-tests
+      image: image-registry.openshift-image-registry.svc:5000/openshift/nodejs:20-ubi9
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      script: |
+        #!/bin/sh
+        set -e
+        echo "=== Running App Tests ==="
+        cd $(workspaces.source.path)
+        echo "--- Test 1: Check server.js exists ---"
+        test -f app/server.js && echo "PASS: server.js exists" || exit 1
+        echo "--- Test 2: Check package.json exists ---"
+        test -f app/package.json && echo "PASS: package.json exists" || exit 1
+        echo "--- Test 3: Check Dockerfile exists ---"
+        test -f app/Dockerfile && echo "PASS: Dockerfile exists" || exit 1
+        echo "--- Test 4: Validate package.json ---"
+        node -e "JSON.parse(require('fs').readFileSync('app/package.json'))" && echo "PASS: package.json is valid JSON" || exit 1
+        echo "--- Test 5: Check server.js syntax ---"
+        node --check app/server.js && echo "PASS: server.js syntax is valid" || exit 1
+        echo "--- Test 6: Check port configuration ---"
+        grep -q "8080" app/server.js && echo "PASS: Port 8080 configured" || exit 1
+        echo "--- Test 7: Check health endpoint ---"
+        grep -q "/health" app/server.js && echo "PASS: Health endpoint exists" || exit 1
+        echo "=== All Tests Passed! ==="

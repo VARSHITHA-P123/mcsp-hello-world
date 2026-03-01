@@ -7,3 +7,6 @@ spec:
   pipelineRef:
     name: mcsp-build-pipeline
   serviceAccountName: pipeline
+  workspaces:
+    - name: shared-workspace
+      emptyDir: {}
