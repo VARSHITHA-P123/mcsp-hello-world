@@ -3,6 +3,9 @@ kind: Route
 metadata:
   name: mcsp-hello-world
   namespace: learning-workspace
+  annotations:
+    cert-manager.io/issuer-kind: ClusterIssuer
+    cert-manager.io/issuer-name: mcsp-selfsigned-issuer
   labels:
     app: mcsp-hello-world
 spec:
@@ -14,3 +17,6 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
+    certificate: ""
+    key: ""
+  wildcardPolicy: None
