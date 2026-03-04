@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: mcsp-hello-world
-          image: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:latest
+          image: image-registry.openshift-image-registry.svc:5000/learning-workspace/mcsp-hello-world:v1.0.7
           ports:
             - containerPort: 8080
           env:
