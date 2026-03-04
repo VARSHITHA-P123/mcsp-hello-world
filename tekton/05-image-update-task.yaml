@@ -1,0 +1,55 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: update-image-tag
+  namespace: learning-workspace
+spec:
+  params:
+    - name: IMAGE_TAG
+      type: string
+  steps:
+    - name: update-and-push
+      image: image-registry.openshift-image-registry.svc:5000/openshift/tools:latest
+      securityContext:
+        runAsNonRoot: true
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      env:
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-token
+              key: token
+        - name: GITHUB_USER
+          valueFrom:
+            secretKeyRef:
+              name: github-token
+              key: username
+      script: |
+        #!/bin/sh
+        set -e
+
+        echo "=== Updating image tag to $(params.IMAGE_TAG) ==="
+
+        cd /tmp
+        git clone https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/VARSHITHA-P123/mcsp-hello-world.git
+        cd mcsp-hello-world
+
+        git config user.email "pipeline@openshift.com"
+        git config user.name "OpenShift Pipeline"
+
+        # Update image tag in deployment.yaml
+        sed -i "s|mcsp-hello-world:.*|mcsp-hello-world:$(params.IMAGE_TAG)|g" k8s/deployment.yaml
+
+        echo "=== Updated deployment.yaml ==="
+        grep "image:" k8s/deployment.yaml
+
+        git add k8s/deployment.yaml
+        git commit -m "Auto update image tag to $(params.IMAGE_TAG) [skip ci]"
+        git push https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/VARSHITHA-P123/mcsp-hello-world.git main
+
+        echo "=== Image tag updated and pushed to GitHub ==="

@@ -17,8 +17,16 @@ spec:
         name: openshift-build
       runAfter:
         - run-tests
-    - name: sync-argocd
+    - name: update-image-tag
+      taskRef:
+        name: update-image-tag
       runAfter:
         - build-image
+      params:
+        - name: IMAGE_TAG
+          value: $(tasks.build-image.results.IMAGE_TAG)
+    - name: sync-argocd
+      runAfter:
+        - update-image-tag
       taskRef:
         name: argocd-sync-check
