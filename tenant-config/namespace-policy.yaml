@@ -43,6 +43,36 @@ spec:
                     limits.cpu: "2"
                     limits.memory: 1Gi
                     pods: "10"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: argocd-admin-customer-a
+                  namespace: customer-a
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: admin
+                subjects:
+                  - kind: ServiceAccount
+                    name: openshift-gitops-argocd-application-controller
+                    namespace: openshift-gitops
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: customer-a-image-puller
+                  namespace: learning-workspace
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: system:image-puller
+                subjects:
+                  - kind: ServiceAccount
+                    name: default
+                    namespace: customer-a
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
