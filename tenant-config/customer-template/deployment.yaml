@@ -25,6 +25,8 @@ spec:
           env:
             - name: PORT
               value: "8080"
+            - name: SCENARIO
+              value: "2 of 3"
             - name: NAMESPACE
               valueFrom:
                 fieldRef:

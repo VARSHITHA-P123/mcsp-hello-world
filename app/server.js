@@ -3,6 +3,9 @@ const http = require('http');
 const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0';
 
+const NAMESPACE = process.env.NAMESPACE || 'learning-workspace';
+const SCENARIO = process.env.SCENARIO || '1 of 3';
+
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,7 +129,7 @@ const html = `<!DOCTYPE html>
       </div>
       <div class="card">
         <div class="card-label">Namespace</div>
-        <div class="card-value">learning-workspace</div>
+        <div class="card-value">${NAMESPACE}</div>
       </div>
       <div class="card">
         <div class="card-label">Platform</div>
@@ -134,7 +137,7 @@ const html = `<!DOCTYPE html>
       </div>
       <div class="card">
         <div class="card-label">Scenario</div>
-        <div class="card-value">1 of 3</div>
+        <div class="card-value">${SCENARIO}</div>
       </div>
     </div>
     <div class="status">
