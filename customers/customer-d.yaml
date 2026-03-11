@@ -11,5 +11,5 @@ metadata:
 data:
   customerName: "customer-d"
   customerTier: "standard"
-  replicas: "2"
+  replicas: "1"
   domain: "customer-d.apps.zps-mcsp1.cp.fyre.ibm.com"
