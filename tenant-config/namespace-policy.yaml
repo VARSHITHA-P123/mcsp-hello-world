@@ -73,6 +73,192 @@ spec:
                   - kind: ServiceAccount
                     name: default
                     namespace: customer-a
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: customer-b-namespace
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: customer-b
+                  labels:
+                    tenant: customer-b
+                    customer: "true"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ResourceQuota
+                metadata:
+                  name: customer-b-quota
+                  namespace: customer-b
+                spec:
+                  hard:
+                    requests.cpu: "1"
+                    requests.memory: 512Mi
+                    limits.cpu: "2"
+                    limits.memory: 1Gi
+                    pods: "10"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: argocd-admin-customer-b
+                  namespace: customer-b
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: admin
+                subjects:
+                  - kind: ServiceAccount
+                    name: openshift-gitops-argocd-application-controller
+                    namespace: openshift-gitops
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: customer-b-image-puller
+                  namespace: learning-workspace
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: system:image-puller
+                subjects:
+                  - kind: ServiceAccount
+                    name: default
+                    namespace: customer-b
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: customer-c-namespace
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: customer-c
+                  labels:
+                    tenant: customer-c
+                    customer: "true"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ResourceQuota
+                metadata:
+                  name: customer-c-quota
+                  namespace: customer-c
+                spec:
+                  hard:
+                    requests.cpu: "1"
+                    requests.memory: 512Mi
+                    limits.cpu: "2"
+                    limits.memory: 1Gi
+                    pods: "10"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: argocd-admin-customer-c
+                  namespace: customer-c
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: admin
+                subjects:
+                  - kind: ServiceAccount
+                    name: openshift-gitops-argocd-application-controller
+                    namespace: openshift-gitops
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: customer-c-image-puller
+                  namespace: learning-workspace
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: system:image-puller
+                subjects:
+                  - kind: ServiceAccount
+                    name: default
+                    namespace: customer-c
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: customer-d-namespace
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: Namespace
+                metadata:
+                  name: customer-d
+                  labels:
+                    tenant: customer-d
+                    customer: "true"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                kind: ResourceQuota
+                metadata:
+                  name: customer-d-quota
+                  namespace: customer-d
+                spec:
+                  hard:
+                    requests.cpu: "1"
+                    requests.memory: 512Mi
+                    limits.cpu: "2"
+                    limits.memory: 1Gi
+                    pods: "10"
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: argocd-admin-customer-d
+                  namespace: customer-d
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: admin
+                subjects:
+                  - kind: ServiceAccount
+                    name: openshift-gitops-argocd-application-controller
+                    namespace: openshift-gitops
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: rbac.authorization.k8s.io/v1
+                kind: RoleBinding
+                metadata:
+                  name: customer-d-image-puller
+                  namespace: learning-workspace
+                roleRef:
+                  apiGroup: rbac.authorization.k8s.io
+                  kind: ClusterRole
+                  name: system:image-puller
+                subjects:
+                  - kind: ServiceAccount
+                    name: default
+                    namespace: customer-d
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
