@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: customer-d-tls
+  namespace: customer-d
+spec:
+  secretName: customer-d-tls
+  issuerRef:
+    name: mcsp-selfsigned-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - mcsp-app-customer-d.apps.zps-mcsp1.cp.fyre.ibm.com
+  duration: 2160h
+  renewBefore: 360h

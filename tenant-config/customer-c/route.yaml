@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: mcsp-app
+  namespace: customer-c
+  labels:
+    app: mcsp-app
+    tenant: customer-c
+spec:
+  to:
+    kind: Service
+    name: mcsp-app
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
