@@ -5,14 +5,15 @@ metadata:
   namespace: openshift-gitops
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/VARSHITHA-P123/mcsp-hello-world.git
-        revision: main
-        files:
-          - path: "customers/*.yaml"
+    - list:
+        elements:
+          - customer: customer-a
+          - customer: customer-b
+          - customer: customer-c
+          - customer: customer-d
   template:
     metadata:
-      name: 'mcsp-{{path.basename}}'
+      name: 'mcsp-{{customer}}'
     spec:
       project: default
       source:
@@ -22,10 +23,10 @@ spec:
         helm:
           parameters:
             - name: customerName
-              value: '{{path.basename}}'
+              value: '{{customer}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: '{{customer}}'
       syncPolicy:
         automated:
           prune: true
