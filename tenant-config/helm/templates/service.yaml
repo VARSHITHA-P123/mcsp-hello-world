@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcsp-app
+  namespace: {{ .Values.customerName }}
+  labels:
+    app: mcsp-app
+    tenant: {{ .Values.customerName }}
+spec:
+  selector:
+    app: mcsp-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
