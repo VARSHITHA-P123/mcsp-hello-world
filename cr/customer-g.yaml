@@ -1,0 +1,9 @@
+apiVersion: mcsp.mcsp.io/v1
+kind: Customer
+metadata:
+  name: customer-g
+  namespace: default
+spec:
+  customerName: customer-g
+  tier: standard
+  replicas: 1

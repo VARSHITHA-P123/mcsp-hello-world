@@ -20,10 +20,14 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -43,6 +47,8 @@ type CustomerReconciler struct {
 // +kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=services,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=route.openshift.io,resources=routes,verbs=get;list;watch;create;update;patch;delete
 
 func (r *CustomerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := logf.FromContext(ctx)
@@ -82,7 +88,37 @@ func (r *CustomerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		log.Info("Namespace created", "namespace", customerName)
 	}
 
-	// Step 3 — Create Deployment
+	// Step 3 — Add Image Puller Permission
+	roleBinding := &rbacv1.RoleBinding{}
+	err = r.Get(ctx, types.NamespacedName{Name: customerName + "-image-puller", Namespace: "learning-workspace"}, roleBinding)
+	if err != nil && errors.IsNotFound(err) {
+		roleBinding = &rbacv1.RoleBinding{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      customerName + "-image-puller",
+				Namespace: "learning-workspace",
+			},
+			RoleRef: rbacv1.RoleRef{
+				APIGroup: "rbac.authorization.k8s.io",
+				Kind:     "ClusterRole",
+				Name:     "system:image-puller",
+			},
+			Subjects: []rbacv1.Subject{
+				{
+					Kind:      "ServiceAccount",
+					Name:      "default",
+					Namespace: customerName,
+				},
+			},
+		}
+		err = r.Create(ctx, roleBinding)
+		if err != nil {
+			log.Error(err, "Failed to create image puller rolebinding")
+			return ctrl.Result{}, err
+		}
+		log.Info("Image puller permission added", "namespace", customerName)
+	}
+
+	// Step 4 — Create Deployment
 	deployment := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: "mcsp-app", Namespace: customerName}, deployment)
 	if err != nil && errors.IsNotFound(err) {
@@ -148,7 +184,7 @@ func (r *CustomerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		log.Info("Deployment created", "deployment", "mcsp-app")
 	}
 
-	// Step 4 — Create Service
+	// Step 5 — Create Service
 	service := &corev1.Service{}
 	err = r.Get(ctx, types.NamespacedName{Name: "mcsp-app", Namespace: customerName}, service)
 	if err != nil && errors.IsNotFound(err) {
@@ -167,9 +203,10 @@ func (r *CustomerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 				},
 				Ports: []corev1.ServicePort{
 					{
-						Name:     "http",
-						Port:     80,
-						Protocol: corev1.ProtocolTCP,
+						Name:       "http",
+						Port:       80,
+						TargetPort: intstr.FromInt(8080),
+						Protocol:   corev1.ProtocolTCP,
 					},
 				},
 				Type: corev1.ServiceTypeClusterIP,
@@ -183,7 +220,51 @@ func (r *CustomerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		log.Info("Service created", "service", "mcsp-app")
 	}
 
-	// Step 5 — Update Status
+	// Step 6 — Create Route using unstructured
+	route := &unstructured.Unstructured{}
+	route.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "route.openshift.io",
+		Version: "v1",
+		Kind:    "Route",
+	})
+	err = r.Get(ctx, types.NamespacedName{Name: "mcsp-app", Namespace: customerName}, route)
+	if err != nil && errors.IsNotFound(err) {
+		route = &unstructured.Unstructured{
+			Object: map[string]interface{}{
+				"apiVersion": "route.openshift.io/v1",
+				"kind":       "Route",
+				"metadata": map[string]interface{}{
+					"name":      "mcsp-app",
+					"namespace": customerName,
+					"labels": map[string]interface{}{
+						"app":    "mcsp-app",
+						"tenant": customerName,
+					},
+				},
+				"spec": map[string]interface{}{
+					"to": map[string]interface{}{
+						"kind": "Service",
+						"name": "mcsp-app",
+					},
+					"port": map[string]interface{}{
+						"targetPort": "http",
+					},
+					"tls": map[string]interface{}{
+						"termination":                   "edge",
+						"insecureEdgeTerminationPolicy": "Redirect",
+					},
+				},
+			},
+		}
+		err = r.Create(ctx, route)
+		if err != nil {
+			log.Error(err, "Failed to create route")
+			return ctrl.Result{}, err
+		}
+		log.Info("Route created", "route", "mcsp-app")
+	}
+
+	// Step 7 — Update Status
 	customer.Status.Deployed = true
 	customer.Status.Message = fmt.Sprintf("Customer %s successfully deployed", customerName)
 	err = r.Status().Update(ctx, customer)
