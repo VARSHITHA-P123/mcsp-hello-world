@@ -5,27 +5,22 @@ metadata:
   namespace: openshift-gitops
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/VARSHITHA-P123/mcsp-hello-world.git
-        revision: main
-        files:
-          - path: "customers/*.yaml"
+    - list:
+        elements:
+          - customer: pepsi
+          - customer: cocacola
   template:
     metadata:
-      name: 'mcsp-{{customerName}}'
+      name: 'mcsp-{{customer}}'
     spec:
       project: default
       source:
         repoURL: https://github.com/VARSHITHA-P123/mcsp-hello-world.git
         targetRevision: main
-        path: tenant-config/helm
-        helm:
-          parameters:
-            - name: customerName
-              value: '{{customerName}}'
+        path: 'tenant-config/{{customer}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{customerName}}'
+        namespace: '{{customer}}'
       syncPolicy:
         automated:
           prune: true

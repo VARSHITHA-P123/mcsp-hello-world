@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mcsp-app
-  namespace: customer-b
+  namespace: cocacola
   labels:
     app: mcsp-app
-    tenant: customer-b
+    tenant: cocacola
 spec:
   replicas: 1
   selector:
@@ -15,7 +15,7 @@ spec:
     metadata:
       labels:
         app: mcsp-app
-        tenant: customer-b
+        tenant: cocacola
     spec:
       containers:
         - name: mcsp-app
@@ -34,12 +34,12 @@ spec:
             - name: CUSTOMER_NAME
               valueFrom:
                 secretKeyRef:
-                  name: customer-b-secrets
+                  name: cocacola-secrets
                   key: customerName
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: customer-b-secrets
+                  name: cocacola-secrets
                   key: apiKey
           resources:
             requests:

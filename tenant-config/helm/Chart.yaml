@@ -1,5 +1,0 @@
-apiVersion: v2
-name: mcsp-customer
-description: MCSP Customer Onboarding Helm Chart
-type: application
-version: 1.0.0

@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mcsp-app
-  namespace: customer-a
+  namespace: pepsi
   labels:
     app: mcsp-app
-    tenant: customer-a
+    tenant: pepsi
 spec:
   replicas: 2
   selector:
@@ -15,7 +15,7 @@ spec:
     metadata:
       labels:
         app: mcsp-app
-        tenant: customer-a
+        tenant: pepsi
     spec:
       containers:
         - name: mcsp-app
@@ -34,12 +34,12 @@ spec:
             - name: CUSTOMER_NAME
               valueFrom:
                 secretKeyRef:
-                  name: customer-a-secrets
+                  name: pepsi-secrets
                   key: customerName
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: customer-a-secrets
+                  name: pepsi-secrets
                   key: apiKey
           resources:
             requests:

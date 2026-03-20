@@ -2,10 +2,10 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: mcsp-app
-  namespace: customer-c
+  namespace: pepsi
   labels:
     app: mcsp-app
-    tenant: customer-c
+    tenant: pepsi
 spec:
   to:
     kind: Service

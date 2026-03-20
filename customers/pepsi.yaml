@@ -1,0 +1,15 @@
+# This file represents a customer onboarding request
+# Pushing this file to GitHub triggers automatic deployment
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pepsi-config
+  namespace: learning-workspace
+  labels:
+    tenant: pepsi
+    customer: "true"
+data:
+  customerName: "pepsi"
+  customerTier: "standard"
+  replicas: "2"
+  domain: "pepsi.apps.zps-mcsp1.cp.fyre.ibm.com"
