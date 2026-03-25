@@ -88,7 +88,7 @@ func (r *CustomerReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		log.Info("Namespace created", "namespace", customerName)
 	}
 
-	// Step 3 — Add Image Puller Permission
+	// Step 3 — Add Image Puller Permissions
 	roleBinding := &rbacv1.RoleBinding{}
 	err = r.Get(ctx, types.NamespacedName{Name: customerName + "-image-puller", Namespace: "learning-workspace"}, roleBinding)
 	if err != nil && errors.IsNotFound(err) {
