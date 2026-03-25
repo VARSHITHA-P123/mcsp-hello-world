@@ -1,8 +1,0 @@
-apiVersion: mcsp.io/v1
-kind: Customer
-metadata:
-  name: customer-e
-spec:
-  customerName: customer-e
-  tier: standard
-  replicas: 1
